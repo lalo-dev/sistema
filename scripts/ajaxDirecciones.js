@@ -1,0 +1,816 @@
+window.onload = inicia;
+
+function inicia() {
+
+	
+	$("btnCancelar").onclick=deshabilitar;
+	$("btnContactos").disabled=true;
+	
+
+	
+	if($("txtNumeroD").value>0)
+	{ 
+	existe();}
+	$("btnbuscar").onclick=existe;
+		
+	$("autoDireccion").className = "autocomplete";	
+	if($("cveCliente").value=="")
+	{alert("Debe Elegir un Cliente");}
+	
+	var url="scripts/catalogoDirecciones.php?operacion=1&tabla="+ $("cveTabla").value+"&cliente=" + $("cveCliente").value;
+	new Ajax.Autocompleter("txtNumeroD", "autoDireccion",url , {paramName: "caracteres", afterUpdateElement:existe});
+	
+
+	$("autoContacto").className = "autocomplete";
+
+	$Ajax("scripts/Sucursales.php", {onfinish: cargaSucursal, tipoRespuesta: $tipo.JSON, avisoCargando:"loading"});	
+	$Ajax("scripts/datosPaises.php", {onfinish: cargaPaises, tipoRespuesta: $tipo.JSON, avisoCargando:"loading"});
+		
+	$("slcPaises").onchange=llenaEstados;
+	$("slcEstados").onchange=llenaMunicipios;
+	$("txtNombre").onchange=existe2;
+
+
+	$("btnContactos").disabled=true;
+	$("btnModificar").disabled=true;
+	$("btnGuardar").disabled=true;
+	$("btnCancelar").disabled=true;
+
+	//Evaluaremos según usuario, las acciones que podrá realizar
+	numP=$("txthPer").value;
+
+	if(numP==6)
+	{
+		$("btnGuardar").style.visibility="hidden";
+		$("btnModificar").style.visibility="hidden";
+		$("btnGuardarContacto").style.visibility="hidden";
+		$("btnModificarContacto").style.visibility="hidden";
+		$("btnBorrarContacto").style.visibility="hidden";
+		
+		$("btnGuardar").style.display="none";
+		$("btnModificar").style.display="none";		
+		$("btnGuardarContacto").style.display="none";		
+		$("btnModificarContacto").style.display="none";		
+		$("btnBorrarContacto").style.display="none";		
+
+	}
+
+
+}
+function buscar_cliente()
+{
+	if(($("cveCliente").value!=0)&&($("txtNumeroD").value!=0)){
+		 var tabla=$("cveTabla").value;
+		 if(tabla=="cliente")
+		 {
+			var url2="scripts/catalogoClientes.php?opc=0&operacion=6&cvecliente="+$("cveCliente").value+"&cvedireccion=" + $("txtNumeroD").value;
+			new Ajax.Autocompleter("txtNombre", "autoContacto",url2 , {paramName: "caracteres", afterUpdateElement:existe2});
+		 }else
+		 {
+			 var url2="scripts/catalogoClientes.php?opc=1&operacion=6&cvecliente="+$("cveCliente").value+"&cvedireccion=" + $("txtNumeroD").value;
+			new Ajax.Autocompleter("txtNombre", "autoContacto",url2 , {paramName: "caracteres", afterUpdateElement:existe2});
+		 }	
+	}
+}
+function deshabilitar2()
+{
+  
+	  inputs=$$("fieldset.contacto input");
+	   for(i=0;i<inputs.length;i++)
+	   {
+			inputs[i].value=""; 
+			inputs[i].className="valid"; 
+		}
+       $("cbxFacturacion").checked=false;
+	   $("btnCancelarContacto").disabled=true;
+	   $("btnModificarContacto").disabled=true;
+       $("btnGuardarContacto").disabled=false;
+       $("btnBorrarContacto").disabled=true;
+
+	   $("btnGuardarContacto").onclick=insertarContacto;
+	   $("btnBorrarContacto").onclick=borrarContactos;
+       	   
+	   campo=document.getElementById("txtNombre");
+	   campo.focus();
+	   //Refrescar GRID
+	   var url3 ="scripts/datosContactos.php?sucursal="+ $("txtNumeroD").value + "&cliente=" + $("cveCliente").value+"&tabla="+ $("cveTabla").value;
+	   $Ajax(url3, {onfinish: addPerson, tipoRespuesta: $tipo.JSON, avisoCargando:"loading"});
+		
+}
+function deshabilitar()
+{
+	   $("txtNumeroD").disabled=false;
+       $("btnModificar").disabled=true;
+       $("btnGuardar").disabled=true;
+	   $("btnCancelar").disabled=true;
+   	   $("btnContactos").disabled=true;
+	   //APF JUNIO
+	   $("act_des").style.visibility="hidden";
+	   $("act_des").style.display="none"; //APF JUNIO
+	   $("status").innerHTML="";
+	   $("form2").reset();
+	   campo=document.getElementById("txtNumeroD");
+	   campo.value="";
+	   campo.focus();
+	   //Refrescar GRID
+	   if(document.getElementById("tablaFormulario").rows.length>1){
+		var ultima = document.getElementById("tablaFormulario").rows.length;
+		for(var j=ultima; j>1; j--){				
+	             document.getElementById("tablaFormulario").deleteRow(1);				 		
+		}
+	  }
+	  //Quitar agregado de Contactos
+	  $("divContactos").className="oculto";
+	   
+}
+function llenaEstados(){
+	if($("slcPaises").value==156)//Si es México se cargan los demas datos
+	{
+		var respuesta= "scripts/estados.php?pais=" + $("slcPaises").value;
+		$Ajax(respuesta, {onfinish: cargaEstados, tipoRespuesta: $tipo.JSON, avisoCargando:"loading"});
+	}else
+	{
+		estados_externos(1);
+	}
+}
+function estados_externos(opc)
+{
+		 // borrando lista anterior para que la pagina no necesite refrescar si se agregaron nuevos elementos a la bd
+		 var selec_edo = $("slcEstados"); 
+		 selec_edo.options.length = 0;  
+		 selec_edo.options.add(new Option("Seleccione",""));
+ 		 selec_edo.options.add(new Option("N/A","N/A"));	
+		 var selec_mun = $("slcMunicipios"); 
+		 selec_mun.options.length = 0;  
+		 selec_mun.options.add(new Option("Seleccione",""));
+ 		 selec_mun.options.add(new Option("N/A","N/A"));
+		 if(opc==0) //Viene de cargar Datos
+		 {
+			 selec_mun.value="N/A";
+			 selec_edo.value="N/A";
+		
+		 }
+}
+function llenaMunicipios(){
+
+	 var selec_mun = $("slcMunicipios"); 
+	 selec_mun.options.length = 0;   
+		
+	if($("slcEstados").value!="N/A")
+	{
+		
+		var respuesta= "scripts/municipios.php?municipio=" + $("slcEstados").value;
+		$Ajax(respuesta, {onfinish: cargaMunicipios, tipoRespuesta: $tipo.JSON, avisoCargando:"loading"});
+	}
+	else
+	{
+	// borrando lista anterior para que la pagina no necesite refrescar si se agregaron nuevos elementos a la bd
+    	 selec_mun.options.add(new Option("Seleccione",""));
+ 		 selec_mun.options.add(new Option("N/A","N/A"));
+	}
+}
+function cargaPaises(paises){
+// borrando lista anterior para que la pagina no necesite refrescar si se agregaron nuevos elementos a la bd
+$("slcPaises").options.length = 0;
+//empieza la carga de la lista
+var opcion = new Option("Seleccione", "");
+$("slcPaises").options[$("slcPaises").options.length] = opcion;
+
+	for (var i=0; i<paises.length; i++){
+	var pais = paises[i];
+	var opcion = new Option(pais.desc, pais.id);
+
+		try {
+		$("slcPaises").options[$("slcPaises").options.length]=opcion;
+ }catch (e){alert("Error interno");}
+	}
+	
+	}
+
+function cargaSucursal(airls){
+// borrando lista anterior para que la pagina no necesite refrescar si se agregaron nuevos elementos a la bd
+$("slcSucursal").options.length = 0;
+//empieza la carga de la lista
+var opcion = new Option("Seleccione", "");
+$("slcSucursal").options[$("slcSucursal").options.length] = opcion;
+
+	for (var i=0; i<airls.length; i++){
+	var airl = airls[i];
+	var opcion = new Option(airl.desc, airl.id);
+
+		try {
+		$("slcSucursal").options[$("slcSucursal").options.length]=opcion;
+ }catch (e){alert("Error interno");}
+	}
+	
+	}
+
+function cargaMunicipios(airls){
+
+// borrando lista anterior para que la pagina no necesite refrescar si se agregaron nuevos elementos a la bd
+$("slcMunicipios").options.length = 0;
+//empieza la carga de la lista
+
+	for (var i=0; i<airls.length; i++){
+	var airl = airls[i];
+	var opcion = new Option(airl.desc, airl.id);
+
+		try {
+		$("slcMunicipios").options[$("slcMunicipios").options.length]=opcion;
+ }catch (e){alert("Error interno");}
+	}
+	
+	}
+function cargaEstados(airls){
+
+// borrando lista anterior para que la pagina no necesite refrescar si se agregaron nuevos elementos a la bd
+$("slcEstados").options.length = 0;
+//empieza la carga de la lista
+var opcion = new Option("Seleccione", "");
+$("slcEstados").options[$("slcEstados").options.length] = opcion;
+
+	for (var i=0; i<airls.length; i++){
+	var airl = airls[i];
+	var opcion = new Option(airl.desc, airl.id);
+
+		try {
+		$("slcEstados").options[$("slcEstados").options.length]=opcion;
+ }catch (e){alert("Error interno");}
+	}
+	
+	}
+
+var indiceFilaFormulario=1;	
+
+function addPerson(airls){
+
+ 
+total=airls[0].total;
+  if(document.getElementById("tablaFormulario").rows.length>1){
+		var ultima = document.getElementById("tablaFormulario").rows.length;
+		for(var j=ultima; j>1; j--){				
+	             document.getElementById("tablaFormulario").deleteRow(1);				 		
+		}
+  }
+  if(total!=0){
+	 for (var i=0; i<airls.length; i++){
+			 var airl = airls[i];
+			 myNewRow = document.getElementById("tablaFormulario").insertRow(-1); 
+			 myNewRow.id=indiceFilaFormulario;
+			 myNewCell=myNewRow.insertCell(-1);
+			 myNewCell.innerHTML="<td>" + airl.nombre +" " + airl.apellidoPaterno +"</td>";
+			 myNewCell=myNewRow.insertCell(-1);
+			 myNewCell.innerHTML="<td><input type='hidden' id='cvesucursal["+indiceFilaFormulario+"]' name='cvesucursal["+indiceFilaFormulario+"]' value='" + airl.cveContacto +"'/><input type='button' name='ver["+indiceFilaFormulario+"]'  value='Editar' onclick='llenaDatosContacto(this)'></td>";
+			 indiceFilaFormulario++;
+		
+		}
+	}
+}
+ 
+function removePerson(obj){ 
+ var oTr = obj;
+ 
+  while(oTr.nodeName.toLowerCase()!='tr'){
+  oTr=oTr.parentNode;
+ }
+ var root = oTr.parentNode;
+ root.removeChild(oTr);
+}
+
+//funcion que verifica si existe un registro que tenga como llave el valor capturado
+//hace una peticion que devuelve un único valor
+function existe() {
+    if($("txtNumeroD").value!='')	
+		{
+			var tabla=$("cveTabla").value;
+			 if(tabla=="cliente")
+			 {
+			 	tabla="cdireccionescliente";
+			 	var campoClave="cveCliente";
+			 }
+			 else
+			 {
+			 	tabla="cdireccionesprovedores";
+			 	var campoClave="cveCorresponsal";
+			 }
+			var url = "scripts/existe.php?keys=9&table="+tabla+"&field1=cveDireccion&field2="+campoClave+"&f1value=" + $("txtNumeroD").value+"&f2value="+$("cveCliente").value;
+			$Ajax(url, {onfinish: next_existe, tipoRespuesta: $tipo.JSON});
+			
+		}		
+		
+}
+function existe2() {
+	
+	    if($("txtNumeroD").value!='')	
+		{
+
+			direccion=$("txtNumeroD").value;
+			cliente=$("cveCliente").value;
+			
+			var contacto=$("txtNombre").value.split(" - ");
+			if(contacto.length>1){
+				var nombre=contacto[1];
+				var nombre_contacto=nombre.split(" ");
+				var nombre_c=nombre_contacto[0];
+				//nombre=$("txtNombre").value;
+			}else
+			{
+				nombre_c=$("txtNombre").value;
+			}
+			 var tabla=$("cveTabla").value;
+			 if(tabla=="cliente")
+			 {
+				var url = "scripts/existe.php?keys=12&table=ccontactoscliente&field1=nombre&f1value="+nombre_c+"&field2=cveCliente&f2value="+cliente+"&field3=sucursalCliente&f3value="+direccion;
+			 }
+			 else
+			 {
+				 var url = "scripts/existe.php?keys=12&table=ccontactosproveedores&field1=nombre&f1value="+nombre_c+"&field2=cveCorresponsal&f2value="+cliente+"&field3=sucursalCliente&f3value="+direccion;			 
+			 }
+			 
+//alert(url);
+			$Ajax(url, {onfinish: next_existe2, tipoRespuesta: $tipo.JSON});
+			//alert(url);
+			
+		}	
+
+}
+
+function next_existe2(ex){
+
+
+
+		var exx=ex[0];
+		var exists = exx.existe;
+		//si el valor es mayor que cero, entonces el registro existe
+		if (exists > 0){
+
+			 var num_direccion=$("txtNumeroD").value;
+			 var num_contacto=$("txtNombre").value.split(" - ");
+			 var nombre=num_contacto[1];
+			 var nombre_final=nombre.split(" ");
+			 
+
+			 $("txtNombre").value=nombre_final[0];
+			 var num_cliente=$('cveCliente').value;
+			 var tabla=$("cveTabla").value;
+
+			 var url4 ="scripts/datosContactos.php?sucursal="+num_direccion+ "&contacto=" +num_contacto[0]+"&cliente="+num_cliente+"&tabla="+tabla;				 
+			$Ajax(url4, {onfinish: DatosContacto, tipoRespuesta: $tipo.JSON, avisoCargando:"loading"});
+//			$("status").innerHTML="<label class='message' for='element_3'>Actualizando registro</label>";
+			$("btnGuardarContacto").disabled=true;
+			$("btnMoficiarContacto").disabled=false;
+			$("btnCancelarContacto").disabled=false;
+			
+
+		}
+		else{
+
+			$("btnGuardarContacto").disabled=false;
+			$("btnMoficiarContacto").disabled=true;
+		}
+}
+//esta funcion recibe el valor de la función anterior y lo evalúa	
+	function next_existe(ex){
+
+		
+		$("txtNumeroD").disabled=true;
+		var exx=ex[0];
+		var exists = exx.existe;
+	
+		//si el valor es mayor que cero, entonces el registro existe
+		if (exists > 0){
+			
+		 	$("btnContactos").onclick=contactosver;
+		  	//se piden los datos
+			$("btnGuardar").disabled=true;
+			$("btnContactos").disabled=false;
+			$("btnModificar").disabled=false;
+			$("txtNumeroD").disabled=true;
+			$("btnCancelar").disabled=false;
+			$("txtNumeroD").value=exx.cve;
+			
+
+
+			if($("txtNumeroD").value>0)	
+			{				
+				 var tabla=$("cveTabla").value;
+				 if(tabla=="cliente")
+				 {
+					var url2="scripts/catalogoClientes.php?opc=0&operacion=6&cvecliente="+$("cveCliente").value+"&cvedireccion=" + $("txtNumeroD").value;
+					new Ajax.Autocompleter("txtNombre", "autoContacto",url2 , {paramName: "caracteres", afterUpdateElement:existe2});
+				}else
+				{
+					var url2="scripts/catalogoClientes.php?opc=1&operacion=6&cvecliente="+$("cveCliente").value+"&cvedireccion=" + $("txtNumeroD").value;
+					new Ajax.Autocompleter("txtNombre", "autoContacto",url2 , {paramName: "caracteres", afterUpdateElement:existe2});
+				}
+				var url2 ="scripts/pruebas.php?opc=0&direccion="+ $("txtNumeroD").value + "&tabla="+ $("cveTabla").value+"&cliente=" + $("cveCliente").value;		
+					
+				$Ajax(url2, {onfinish: llenaEstado, tipoRespuesta: $tipo.JSON, avisoCargando:"loading"});	
+
+			}
+
+			else
+			{
+				var url2 = $("slcSucursal").value + "&tabla="+ $("cveTabla").value+"&cliente=" + $("cveCliente").value;					
+				$Ajax("scripts/datosDirecciones.php?sucursal="+url2, {onfinish: llenaDatos, tipoRespuesta: $tipo.JSON, avisoCargando:"loading"});		
+			}	
+//		alert(url2);
+			$("act_des").style.visibility="visible";
+   	        $("act_des").style.display="block";
+			
+			//cambiamos el manejador del boton actualizar para que apunte a la funcion
+			//que actualiza el registro
+			$("btnModificar").onclick=actualizar;
+			//agregamos un manejado de evento al boton borrar para que llame a su funcion borrar
+			
+			$("status").innerHTML="<label class='message' for='element_3'>Actualizando registro</label>";
+		}
+		else{
+			$("act_des").style.visibility="hidden";
+   	        $("act_des").style.display="none";
+			$("btnGuardar").disabled=false;
+			$("btnCancelar").disabled=false;
+			//agregamos un manejador al boton continuar para que apunte a la funcion
+			//que inserta un registro nuevo
+			$("btnGuardar").onclick=insertar;
+			//imprimimos un aviso de que se trata de un registro nuevo
+			$("status").innerHTML="<label class='message' for='element_3'>Agregando nuevo registro</label>";
+			//el boton borrar no es útil aqui, por lo tanto lo ocultamos
+				$("btnContactos").disabled=true;
+				$("btnModificar").disabled=true;
+			}
+			//Pondremos como valor por DEFAULT México, en el país
+			$("slcPaises").value=156;
+			llenaEstados();
+
+		}
+		
+	function contactosver(){
+					
+					$("divContactos").className="";
+					$("btnGuardarContacto").onclick=insertarContacto;
+					$("btnGuardarContacto").disabled=false;
+					inputs=$$("fieldset.contacto input");
+				    for(i=0;i<inputs.length;i++)
+				    {
+						inputs[i].value=""; 
+						inputs[i].className="valid"; 
+					}
+					$("btnModificarContacto").disabled=true;
+					$("btnCancelarContacto").disabled=true;
+					$("btnBorrarContacto").disabled=true;
+
+					
+	}
+		
+		function insertar(){
+			
+		if(allgood()){
+			
+			if($("slcPaises").value==156)//Si es México
+			{
+				cve_estado=$("slcEstados").value;  
+				cve_municipio=$("slcMunicipios").value;
+			}
+			else
+			{
+				cve_estado=0;
+				cve_municipio=0;
+			}
+		
+     	 var valores = "cveCliente="		+$("cveCliente").value + "&slcSucursal="		+$("slcSucursal").value		+"&txtCalle="		+$("txtCalle").value		+"&txtNumeroInterior="	+$("txtNumeroInterior").value;
+	valores = valores + "&txtNumeroExterior="	+$("txtNumeroExterior").value;
+valores = valores + "&txtColonia="		+$("txtColonia").value		+"&txtCodigoPostal="		+$("txtCodigoPostal").value		+"&slcPaises="		+$("slcPaises").value;
+valores = valores + "&slcEstados="			+cve_estado		+"&slcMunicipios="	+cve_municipio		+"&slcTiposDireccion="		+$("slcTiposDireccion").value  + "&txtTelefono="		+$("txtTelefono").value+ "&txtNumeroD="		+$("txtNumeroD").value+ "&txtTabla="		+$("cveTabla").value;;
+	var usuario="&usuario="+$("hdnUsuario").value  +  "&empresa="+$("hdnEmpresaS").value;	
+valores=valores +usuario;
+
+		$Ajax("scripts/guardaDireccion.php", {metodo: $metodo.POST, onfinish: fin, parametros: valores, avisoCargando:"loading"});
+		$("contenedor").className="";
+		}
+		
+		}
+		
+		function insertarContacto(){
+			
+		if(allgood2()){
+			var contactoF;
+			if($("cbxFacturacion").checked)
+			{contactoF=1;}else{contactoF=0;}		
+     	 var valores = "cveCliente="		+$("cveCliente").value + "&slcSucursal="		+$("txtNumeroD").value		+ "&txtNombre="		+$("txtNombre").value		+"&contactoF=" + contactoF;
+	valores = valores + "&txtApellidoPaterno="	+$("txtApellidoPaterno").value;
+valores = valores + "&txtApellidoMaterno="		+$("txtApellidoMaterno").value		+"&txtCargo="		+$("txtCargo").value		+"&txtDepartamento="		+$("txtDepartamento").value;
+valores = valores + "&txtLada="			+$("txtLada").value		+"&txtTelefonoContacto="	+$("txtTelefonoContacto").value		+"&txtCelular="		+$("txtCelular").value  + "&txtMail="		+$("txtMail").value+ "&txtTabla="		+$("cveTabla").value;
+	var usuario="&usuario="+$("hdnUsuario").value  +  "&empresa="+$("hdnEmpresaS").value;	
+valores=valores +usuario;
+		//var valores = $("form1").serialize();
+		$Ajax("scripts/guardaContactos.php?tabla="+ $("cveTabla").value, {metodo: $metodo.POST, onfinish: fin2, parametros: valores, avisoCargando:"loading"});
+		$("contenedor").className="";
+		}
+		
+		}
+		
+		
+		function actualizar(){
+			if(allgood()){
+				if($("chkActivado").checked)
+					 estado=1;
+				else estado=0;
+				
+			if($("slcPaises").value==156)//Si es México
+			{
+				cve_estado=$("slcEstados").value;  
+				cve_municipio=$("slcMunicipios").value;
+			}
+			else
+			{
+				cve_estado=0;
+				cve_municipio=0;
+			}
+				
+				
+			 var valores = "cveCliente="		+$("cveCliente").value + "&slchSucursal="		+$("slchSucursal").value+ "&slcSucursal="		+$("slcSucursal").value		+"&txtCalle="		+$("txtCalle").value		+"&txtNumeroInterior="	+$("txtNumeroInterior").value;
+	valores = valores + "&txtNumeroExterior="	+$("txtNumeroExterior").value;
+valores = valores + "&txtColonia="		+$("txtColonia").value		+"&txtCodigoPostal="		+$("txtCodigoPostal").value		+"&slcPaises="		+$("slcPaises").value;
+valores = valores + "&slcEstados="			+cve_estado		+"&slcMunicipios="	+cve_municipio		+"&slcTiposDireccion="		+$("slcTiposDireccion").value  + "&txtTelefono="		+$("txtTelefono").value+"&txtNumeroD="		+$("txtNumeroD").value+ "&txtTabla="		+$("cveTabla").value;;
+	var usuario="&usuario="+$("hdnUsuario").value  +  "&empresa="+$("hdnEmpresaS").value+  "&estado="+estado;	
+valores=valores +usuario;
+
+		$Ajax("scripts/actualizaDireccion.php?tabla="+ $("cveTabla").value, {metodo: $metodo.POST, onfinish: fin, parametros: valores, avisoCargando:"loading"});
+		
+		
+	
+		}
+		
+			}
+		
+	function modificarContacto(){
+			
+		if(allgood2()){
+			var contactoF;
+			if($("cbxFacturacion").checked)
+			{contactoF=1;}else{contactoF=0;}
+			
+     	 var valores = "cveCliente="		+$("cveCliente").value + "&slcSucursal="		+$("txtNumeroD").value		+ "&txtNombre="		+$("txtNombre").value		+"&contactoF=" + contactoF;
+	valores = valores + "&txtApellidoPaterno="	+$("txtApellidoPaterno").value;
+valores = valores + "&txtApellidoMaterno="		+$("txtApellidoMaterno").value		+"&txtCargo="		+$("txtCargo").value		+"&txtDepartamento="		+$("txtDepartamento").value;
+valores = valores + "&txtLada="			+$("txtLada").value		+"&txtTelefonoContacto="	+$("txtTelefonoContacto").value		+"&txtCelular="		+$("txtCelular").value  + "&txtMail="		+$("txtMail").value+ "&hdncvecontacto="		+$("hdncvecontacto").value+ "&txtTabla="		+$("cveTabla").value;;
+	var usuario="&usuario="+$("hdnUsuario").value  +  "&empresa="+$("hdnEmpresaS").value;	
+valores=valores +usuario;
+		//var valores = $("form1").serialize();
+		$Ajax("scripts/actualizaContactos.php?tabla="+ $("cveTabla").value, {metodo: $metodo.POST, onfinish: fin2, parametros: valores, avisoCargando:"loading"});
+		$("contenedor").className="";
+		}
+		
+		}
+		
+		function borrarContactos(){
+			
+			if (confirm("\u00bfConfirma que desea borrar al Contacto?")){		
+				var hid ="wb_id=" + $("hdncvecontacto").value;
+				$Ajax("scripts/borarContactos.php?tabla="+ $("cveTabla").value, {metodo: $metodo.POST, onfinish: fin2, parametros: hid, avisoCargando:"loading"});
+				$("contenedor").className="";
+			}
+			
+		
+		}
+		function borrar(){
+			
+			if (confirm("Confirme que desea borrar")){
+			
+				var hid ="wb_id=" + $("txtNumeroD").value;
+				$Ajax("scripts/borarContactos.php?tabla="+ $("cveTabla").value, {metodo: $metodo.POST, onfinish: fin, parametros: hid, avisoCargando:"loading"});	
+				$("contenedor").className="";
+			
+			}
+		}
+
+		function llenaEstado(campos){	 	
+			var campo = campos[0];
+
+			var url2 = $("txtNumeroD").value + "&cliente=" + $("cveCliente").value+"&tabla="+ $("cveTabla").value;					
+			if(campo.cvePais==156)//México
+			{
+	           	var respuesta= "scripts/estados.php?pais=" + campo.cvePais;
+			    $Ajax(respuesta, {onfinish: cargaEstados, tipoRespuesta: $tipo.JSON, avisoCargando:"loading"});
+				url="scripts/datosDirecciones.php?direccion="+url2;				
+			}
+			else
+			{
+				estados_externos(0);
+				url="scripts/datosDirecciones.php?opc=0&direccion="+url2;
+			}
+		    
+			$Ajax(url, {onfinish: llenaMunicipiosb, tipoRespuesta: $tipo.JSON, avisoCargando:"loading"});
+				
+		}
+		function llenaMunicipiosb(campos){	 	
+		
+			var url2 = $("txtNumeroD").value + "&cliente=" + $("cveCliente").value+"&tabla="+ $("cveTabla").value;					
+			var campo = campos[0];
+			if(campo.cvePais==156)//México
+			{
+				var respuesta= "scripts/municipios.php?municipio=" + campo.cveEstado;			
+				$Ajax(respuesta, {onfinish: cargaMunicipios, tipoRespuesta: $tipo.JSON, avisoCargando:"loading"});	
+				url="scripts/datosDirecciones.php?direccion="+url2;
+			}
+			else
+			{
+				url="scripts/datosDirecciones.php?opc=0&direccion="+url2;
+			}	
+			
+
+			$Ajax(url, {onfinish: llenaDatos, tipoRespuesta: $tipo.JSON, avisoCargando:"loading"});
+			
+		
+		}
+
+		function llenaDatos(campos){
+			
+		//tomamos el primer objeto del json, ya que siempre devolvera un unico registro
+			var campo = campos[0];
+		//asignamos los valores a los campos del formulario para que el usuario pueda visualizarlos
+	
+
+		if(campo.estatus==1)
+		{
+			$("lblActivado").value="Activado";
+   		    $("chkActivado").checked=true;
+		}
+		else if(campo.estatus==0)
+		{
+			$("lblActivado").value="Desactivado";
+   		    $("chkActivado").checked=false;
+		}
+	
+	
+		for(var idx1 = 0; idx1 < $("slcSucursal").options.length; idx1 ++){
+		if($("slcSucursal").options[idx1].value == campo.sucursalCliente){
+			$("slcSucursal").selectedIndex = idx1;
+			$("slcSucursal").options[idx1].selected=true;
+			$("slchSucursal").value=campo.sucursalCliente;
+
+			}
+		}
+		
+		for(var idx1 = 0; idx1 < $("slcPaises").options.length; idx1 ++){
+		if($("slcPaises").options[idx1].value == campo.cvePais){
+			$("slcPaises").selectedIndex = idx1;
+			$("slcPaises").options[idx1].selected=true;
+			}
+		
+		}
+	
+		$("slcEstados").value =campo.cveEstado;
+		
+		for(var idx1 = 0; idx1 < $("slcMunicipios").options.length; idx1 ++){
+		if($("slcMunicipios").options[idx1].value == campo.cveMunicipio){
+			$("slcMunicipios").selectedIndex = idx1;
+			$("slcMunicipios").options[idx1].selected=true;
+			}
+		}
+			
+		for(var idx1 = 0; idx1 < $("slcTiposDireccion").options.length; idx1 ++){
+		if($("slcTiposDireccion").options[idx1].value == campo.tipoDireccion){
+			$("slcTiposDireccion").selectedIndex = idx1;
+			$("slcTiposDireccion").options[idx1].selected=true;
+			}
+		}
+
+ 		$("txtCalle").value = campo.calle;
+		$("txtNumeroExterior").value = campo.numeroexterior;
+		$("txtNumeroInterior").value = campo.numeroInterior;
+		$("txtColonia").value = campo.colonia;
+		$("txtCodigoPostal").value = campo.codigoPostal;
+		$("txtTelefono").value = campo.telefono;
+		
+		var url3 ="scripts/datosContactos.php?sucursal="+ $("txtNumeroD").value + "&cliente=" + $("cveCliente").value+"&tabla="+ $("cveTabla").value;
+
+	//estas son para los contactos
+
+		$Ajax(url3, {onfinish: addPerson, tipoRespuesta: $tipo.JSON, avisoCargando:"loading"});
+		$("btnBorrarContacto").onclick=borrarContactos;
+        //imprimimos un mensaje de actualizando
+		$("status").innerHTML="<label class='message' for='element_3'>Actualizando registro</label>";
+		}
+
+function llenaDatosContacto(obj){
+	
+					
+		var parentId="cvesucursal[";
+		var indice=obj.name.lastIndexOf("[");
+		parentId+=obj.name.substring(indice+1,indice+2)+"]";
+	
+		//tomamos el primer objeto del json, ya que siempre devolvera un unico registro
+		var url4 ="scripts/datosContactos.php?sucursal="+ $("txtNumeroD").value + "&contacto=" + $(parentId).value+"&cliente="+$('cveCliente').value+"&tabla="+ $("cveTabla").value;
+//	alert(url4);
+		$Ajax(url4, {onfinish: DatosContacto, tipoRespuesta: $tipo.JSON, avisoCargando:"loading"});
+			}	
+		function DatosContacto(campos){
+			
+			
+		$("divContactos").className="";
+		var campo = campos[0];
+		//asignamos los valores a los campos del formulario para que el usuario pueda visualizarlos
+//		alert('tre datos');
+		$("hdncvecontacto").value = campo.cveContacto;
+ 		$("txtNombre").value = campo.nombre;
+		$("txtApellidoPaterno").value = campo.apellidoPaterno;
+		$("txtApellidoMaterno").value = campo.apellidoMaterno;
+		$("txtCargo").value = campo.puesto;
+		$("txtDepartamento").value = campo.departamento;
+		$("txtLada").value = campo.lada;
+		$("txtTelefonoContacto").value = campo.telefono;
+		$("txtCelular").value = campo.celular;
+		$("txtMail").value = campo.email;
+		
+		if(campo.contactoFacturacion==1)
+			{$("cbxFacturacion").checked=true;}else{$("cbxFacturacion").checked=false;}
+		$("btnGuardarContacto").disabled=true;
+		$("btnModificarContacto").disabled=false;
+		$("btnBorrarContacto").disabled=false;
+		$("btnCancelarContacto").disabled=false;
+		$("btnModificarContacto").onclick=modificarContacto;
+		
+			}
+	
+		
+			
+			
+			
+		function fin(res){
+			alert(res);
+			deshabilitar();
+		
+		}
+		function fin2(res){
+			alert(res);
+			deshabilitar2();
+		
+		}
+
+		function limpiar()
+		{
+			  inputs=$$("fieldset.contacto input");
+			   for(i=0;i<inputs.length;i++)
+			   {
+					inputs[i].value=""; 
+				}
+			   $("cbxFacturacion").checked=false;
+			   
+			   $("btnModificarContacto").disabled=true;
+			   $("btnGuardarContacto").disabled=false;
+			   $("btnBorrarContacto").disabled=true;
+		}
+		
+		function allgood2()
+		{
+			
+				var notGood = 0;
+				
+				
+								
+				if($("txtNombre").value.length < 3){$("txtNombre").className += " invalid"; notGood ++;} else{$("txtNombre").className = "valid";}		
+				
+				if($("txtTelefonoContacto").value.length < 5 ){$("txtTelefonoContacto").className += " invalid"; notGood ++;} else{$("txtTelefonoContacto").className = "valid";}		
+				if($("txtApellidoPaterno").value.length < 3){$("txtApellidoPaterno").className += " invalid"; notGood ++;} else{$("txtApellidoPaterno").className = "valid";}	
+				if($("txtApellidoMaterno").value.length <3){$("txtApellidoMaterno").className += " invalid"; notGood ++;} else{$("txtApellidoMaterno").className = "valid";}	
+
+			if(notGood > 0){
+				alert("Hay Informacion erronea que ha sido resaltada en color!");
+				return false;
+			}else{ return true;}
+				
+		}
+		function allgood(){
+		var notGood = 0;
+
+			var tabla=$("cveTabla").value;
+			//Las validaciones sirven para las dos tablas;CLientes y Corresponsales
+
+				if($("txtCodigoPostal").value.length < 4 || isNaN($("txtCodigoPostal").value)){$("txtCodigoPostal").className += " invalid"; notGood ++;} else{$("txtCodigoPostal").className = "valid";}		
+				
+				if($("txtTelefono").value.length < 5 ){$("txtTelefono").className += " invalid"; notGood ++;} else{$("txtTelefono").className = "valid";}		
+				if($("txtNumeroD").value.length==0 ||isNaN($("txtNumeroD").value)){$("txtNumeroD").className += " invalid"; notGood ++;} else{$("txtNumeroD").className = "valid";}		
+				
+				
+				if($("txtCalle").value.length < 1 ){$("txtCalle").className += " invalid"; notGood ++;} else{$("txtCalle").className = "valid";}	
+				if($("txtColonia").value.length < 2 ){$("txtColonia").className += " invalid"; notGood ++;} else{$("txtColonia").className = "valid";}	
+				if($("slcPaises").value==""){$("slcPaises").className += " invalid"; notGood ++;} else{$("slcPaises").className = "valid";}	
+				if($("slcMunicipios").value==""){$("slcMunicipios").className += " invalid"; notGood ++;} else{$("slcMunicipios").className = "valid";}	
+				if($("slcEstados").value==""){$("slcEstados").className += " invalid"; notGood ++;} else{$("slcEstados").className = "valid";}	
+						
+		
+		if(notGood > 0){
+			alert("Hay Informacion erronea que ha sido resaltada en color!");
+			return false;
+			} else
+			{
+				return true;
+			}
+			
+		}
+		
+
+		
+		

@@ -1,0 +1,612 @@
+@charset "utf-8";
+
+/* CSS Document */
+/*#fldDatosAbierta
+{
+	visibility:hidden;
+	display:none;
+}
+*/
+#tblReporte
+{
+	margin-left:-30px
+}
+#capPreguntas
+{
+	font-size:16px;
+	font-style:italic;
+}
+.alinVT
+{
+	vertical-align:top;
+}
+#tdGrande
+{
+	font-size:18px;
+	height:30px;
+	text-align:center;
+}
+.inputRemarcado
+{
+	border:6px solid #507DFF;
+	width:192px;
+	text-align:center;
+}
+
+.divIncidencias
+{
+	width:1100px;
+	margin-left:-80px;
+}
+#divEstacionGuia
+{
+	width:250px;
+	position:absolute;
+	margin-top:-20px;
+	font-weight:bold;
+}
+
+#divInfoGuia
+{
+	background:#FFFCBB;
+	opacity:.9;
+	color:#666;
+	position:absolute;
+	margin-left:252px;
+	margin-top:-68px;
+	height:40px;
+	padding:1px;
+	visibility:hidden;
+	width:auto;
+}
+
+.infoGuia
+{
+	position:relative;
+	width:500px;
+	left:200px;
+	top:-45px;
+	color:#F00;
+	font-size:12px;
+	font-weight:bold;
+	height:13px;
+}
+
+#divGral
+{
+	width:392px;
+	height:250px;
+	postion:absolute;
+	margin-top:-260px;
+	margin-left:530px;
+}
+
+#divGuias 
+{
+	width:385px;
+	height:40px;
+	word-wrap:break-word;
+	font-size:17px;
+}
+
+#divFac
+{
+	width:385px;
+	height:180px;
+	word-wrap:break-word;	
+}
+
+.ahCentro
+{
+	text-align:right;
+}
+
+#fldNotas,#fldNotasDes
+{
+	height:190px;
+}
+
+.mayuscula
+{
+	text-transform:uppercase;
+}
+.ContraHistoricos{
+	position:absolute; 
+	left:233px; 
+	top:380px;
+	width:auto;
+	z-index:-2;
+}
+
+.ContraAgregados
+{
+	position:static;
+	margin-top:-200px;
+	margin-left:570px;
+	z-index:-2;
+}
+
+.fldDatosAbiertaInvisible
+{
+	visibility:hidden;
+	display:none;
+}
+
+.folios
+{
+	position:static;
+}
+.acuses
+{
+	position:static;
+}
+
+textarea
+{
+	resize:none !important;
+}
+.fldgenerales
+{
+	height:100px;
+}
+.fldrecepcion
+{
+	height:100px;
+}
+.fldaereo
+{
+	height:100px;
+}
+.fldremitente
+{
+	height:160px;
+	width:720px;
+}
+.fldremitente2
+{
+	height:160px;
+	width:auto;
+	position:static;
+	left:550px;
+	margin-top:0px;
+	
+}
+
+.dosFieldset
+{
+	width:auto;
+	top:158px;
+	left:540px;
+	position:absolute;
+}
+.dosFieldset2
+{
+	width:360px;
+	top:348px;
+	left:802px;
+	position:absolute;
+}
+.dosFieldset3
+{
+	width:auto;
+	top:475px;
+	left:802px;
+	position:absolute;
+}
+.flddestinatario
+{
+	height:160px;
+	width:720px;
+}
+.flddestinatario2
+{
+	height:160px;
+	width:auto;
+}
+.fldenvio
+{
+	height:110px;
+}
+.fldgenerales2
+{
+	height:160px;
+}
+.fldentrega
+{
+	height:110px;
+}
+.fldentrega2
+{
+	height:110px;
+	width:489px;
+}
+.fldacuse
+{
+	height:110px;
+}
+.fldfactura
+{
+	height:100px;
+}
+.fldentregas
+{
+	height:100px;
+}
+.fldvale
+{
+	height:100px;
+}
+.fldvale tr
+{
+	vertical-align:middle;
+}
+.fldcontroles
+{
+	height:110px;
+}
+
+.observaciones{
+	position:static;
+	margin:0px;
+	margin-top:10px;
+	left:660px;
+	top:-100px;
+	/*border:solid 1px #000;*/
+}
+
+.observacionesCliente{
+	position:absolute;
+	margin-top:-117px;
+	margin-left:640px;
+	width:625px;
+}
+
+.observacionesClienteReImp{
+	position:absolute;
+	margin-top:0px;
+	margin-left:0px;
+	width:625px;
+	/*border:solid 1px #000;*/
+}
+
+.controlesbtn{
+	position:absolute;
+	width:390px;
+	height:75px;
+	margin-left:1280px;
+	margin-top:-116px;
+	/*border:solid 1px #000;*/
+}
+
+.controlesBtnImp{
+	position:absolute;
+	margin-left:1280px;
+	margin-top:-17px;
+	width:215px;
+	height:92px;
+	/*border:solid 1px #000;*/
+}
+
+.fldobservaciones
+{
+	width:720px;
+	height:120px;
+}
+.verticalalign_t{
+	vertical-align:top;
+}
+.ocultoOtro
+{
+	visibility:hidden;
+	display:block;
+}
+.input200
+{
+	width:200px;
+}
+
+.input100
+{
+	width:100px;
+	text-align:center;
+}
+
+.input300
+{
+	width:300px;
+	text-transform:uppercase;
+}
+.input350
+{
+	width:350px;
+}
+.input510
+{
+	width:510px;
+}
+.input568
+{
+	width:568px;
+}
+.input450
+{
+	width:450px;
+}
+.totalReg
+{
+	font-size:18px;
+	font-family:'Calibri';
+	color:#8FC2ED;
+	border:0;
+	text-align:center;
+
+}
+.arial10{
+	font-size:10px;
+	font-family:"Arial", Gadget, sans-serif;
+	width:240px;
+}
+
+#loading {
+
+
+	background-color: white;
+	
+	color: black;
+	
+	font-family: Arial, Helvetica, sans-serif;
+	
+	font-size: 12px;
+	
+	font-weight: bold;
+	
+	padding:5px;
+
+}
+#cargando {
+
+
+	background-color: white;	
+	color: black;	
+	font-family: Arial, Helvetica, sans-serif;	
+	font-size: 10px;	
+	font-weight:bold;
+	padding:5px;
+}
+
+
+#act_des
+{
+	visibility:hidden;
+	display:none;
+}
+
+
+#form1{
+
+	position:absolute;
+	right: 329px;
+	width: 300px;
+	padding: 15px;
+	top: 93px;
+}
+
+
+
+.filaCampo {
+
+		padding: 2px;
+
+		height: 25px;
+
+		
+
+
+
+}
+
+.etiqueta
+
+	{
+
+	width: 40%;
+
+	float: left;
+
+	color: #FFFFFF;
+
+	}
+
+	
+
+.campo {
+
+	witdth: 60%;
+
+	float: right;
+
+}
+
+ .oculto{
+
+ visibility:hidden;
+
+ 
+
+ }
+ .oculto1{
+
+ visibility:hidden;
+ display:none;
+
+ 
+
+ }
+.invalid{
+
+    background-color:#9FCFFF;
+
+
+}
+	
+.valid
+{
+
+
+}
+
+    
+
+    .button{
+
+background-color: White;
+
+}
+
+.large
+
+{
+
+	height:20em;
+
+}
+
+div.autocomplete {
+
+position:absolute;
+
+width:250px;
+
+background-color:white;
+
+border:1px solid #888;
+
+margin:0px;
+
+padding:0px;
+
+
+
+}
+
+
+
+div.autocomplete ul {
+
+list-style-type:none;
+
+margin:0px;
+
+padding:0px;
+
+
+
+}
+
+div.autocomplete ul li.selected {
+
+background-color:#ffb;
+
+font:Arial, Helvetica, sans-serif;
+
+font-size:12px;
+
+color:#3366FF;
+
+}
+
+div.autocomplete ul li{
+
+list-style-type:none;
+
+font:Arial, Helvetica, sans-serif;
+
+font-size:10px;
+
+color:#CCCCCC;
+
+display:block;
+
+margin:0;
+
+padding:2px;
+
+height:24px;
+
+cursor:pointer;
+
+
+
+}
+select.sltEstadosMuni
+{
+	width:230px;
+}
+input.sltEstadosMuni
+{
+	width:250px;
+}
+input.sltEstadosMuni2
+{
+	width:250px;
+	display:none;
+	visibility:hidden;
+}
+select.sltEstadosMuniinvalid
+{
+	width:230px;
+    background-color:#9FCFFF;
+}
+input.sltEstadosMuniinvalid
+{
+	width:250px;
+    background-color:#9FCFFF;
+}
+select.sltEstadosMunivalid
+{
+	width:230px;
+}
+input.sltEstadosMunivalid
+{
+	width:250px;
+}
+
+.imgImp
+{
+cursor:pointer;
+}
+/*Cajas de búqueda*/
+.busqueda
+{
+font-size:12px;
+font-style:italic;
+color:#969696;
+width:155px;
+height:15px;
+}
+
+select[class="busqueda"]
+{
+height:20px;
+width:160px;
+}
+
+option[class="busqueda"]
+{
+height:20px;
+width:160px;
+color:#090;
+}
+
+.busqueda1
+{
+font-size:12px;
+width:155px;
+height:15px;
+}
+
+select[class="busqueda1"]
+{
+height:20px;
+width:160px;
+}
