@@ -323,8 +323,9 @@ function partirTexto2($texto)
     return $resultados;
 }
 
+//***** Esta funcion de debe cambiar de nombre de wordwrap a cortarTexto
 //function WordWrap(&$text, $maxwidth)
-/*function WordWrap($text, $maxwidth)
+function cortarTexto($text, $maxwidth)
 {
     $text = trim($text);
     if ($text==='')
@@ -378,7 +379,7 @@ function partirTexto2($texto)
     }
     $text = rtrim($text);
     return $count;
-}*/
+}
 
 function encontrarEspacio($texto)
 {
