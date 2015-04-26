@@ -309,7 +309,7 @@ function partirTexto($texto)
 }
 function partirTexto2($texto)
 {
-    $divisor=strlen($texto)/2;
+	$divisor=strlen($texto)/2;
     $texto1=substr($texto,0,$divisor);
     $texto2=substr($texto,$divisor,strlen($texto));
     $siguiente=substr($texto,$divisor,1);
@@ -323,7 +323,8 @@ function partirTexto2($texto)
     return $resultados;
 }
 
-function WordWrap(&$text, $maxwidth)
+//function WordWrap(&$text, $maxwidth)
+/*function WordWrap($text, $maxwidth)
 {
     $text = trim($text);
     if ($text==='')
@@ -377,7 +378,7 @@ function WordWrap(&$text, $maxwidth)
     }
     $text = rtrim($text);
     return $count;
-}
+}*/
 
 function encontrarEspacio($texto)
 {
