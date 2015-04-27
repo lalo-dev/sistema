@@ -8,14 +8,14 @@ class PDF extends PDF_Table
     function Header()
     {
     }
-    //Cabecera de pï¿½gina
+    //Cabecera de pagina
     
     function Footer()
     {
     }
 }
 
-    //Creaciï¿½n del objeto de la clase heredada
+    //Creacion del objeto de la clase heredada
     $pdf=new PDF('P','mm','letter');
     $pdf->AliasNbPages();
     $pdf->SetDisplayMode(60,'default'); //Para que el zoom este al 100%, normal real
@@ -78,35 +78,44 @@ class PDF extends PDF_Table
             cguias.piezas,
             cguias.volumen,
             cguias.kg,
-             (SELECT cestados.nombre AS estadoR FROM `cmunicipios` 
-             INNER JOIN cestados ON cveEstado=cmunicipios.`cveEntidadFederativa`
-             WHERE cveEntidadFederativa=cguias.estadoRemitente AND cveMunicipio=cguias.municipioRemitente) AS estadoR,
-             (SELECT cmunicipios.nombre AS municipio FROM `cmunicipios` 
-             INNER JOIN cestados ON cveEstado=cmunicipios.`cveEntidadFederativa`
-             WHERE cveEntidadFederativa=cguias.estadoRemitente AND cveMunicipio=cguias.municipioRemitente) AS municipioR,
-            cconsignatarios.nombre,
-            cconsignatarios.estado,
-            cconsignatarios.municipio,
-            cconsignatarios.colonia,
-            cconsignatarios.municipio,
-            cconsignatarios.estado,
-            cconsignatarios.calle,
-            cconsignatarios.codigoPostal,
-            cconsignatarios.telefono,
-            (SELECT cestados.nombre AS estado FROM `cmunicipios` 
-             INNER JOIN cestados ON cveEstado=cmunicipios.`cveEntidadFederativa`
-             WHERE cveEntidadFederativa=cconsignatarios.estado AND cveMunicipio=cconsignatarios.municipio) AS estadoD,
-             (SELECT cmunicipios.nombre AS municipio FROM `cmunicipios` 
-             INNER JOIN cestados ON cveEstado=cmunicipios.`cveEntidadFederativa`
-             WHERE cveEntidadFederativa=cconsignatarios.estado AND cveMunicipio=cconsignatarios.municipio) AS municipioD
-           FROM cguias
-           LEFT JOIN cconsignatarios ON cguias.cveConsignatario = cconsignatarios.cveConsignatario
-           WHERE cguias.cveGuia != '' ".$condicion."
-           ORDER BY cguias.cveCliente ASC,cguias.cveGuiaInt,cguias.fechaCreacion DESC;";
+            (
+    			SELECT cestados.nombre AS estadoR FROM `cmunicipios` 
+             	INNER JOIN cestados ON cveEstado=cmunicipios.`cveEntidadFederativa`
+             	WHERE cveEntidadFederativa=cguias.estadoRemitente AND cveMunicipio=cguias.municipioRemitente
+    		) AS estadoR,
+			(
+    			SELECT cmunicipios.nombre AS municipio FROM `cmunicipios`
+    			INNER JOIN cestados ON cveEstado=cmunicipios.`cveEntidadFederativa`
+             	WHERE cveEntidadFederativa=cguias.estadoRemitente AND cveMunicipio=cguias.municipioRemitente
+    		) AS municipioR,
+			cconsignatarios.nombre,
+			cconsignatarios.estado,
+			cconsignatarios.municipio,
+			cconsignatarios.colonia,
+			cconsignatarios.municipio,
+			cconsignatarios.estado,
+			cconsignatarios.calle,
+			cconsignatarios.codigoPostal,
+			cconsignatarios.telefono,
+			(
+				SELECT cestados.nombre AS estado FROM `cmunicipios` 
+				INNER JOIN cestados ON cveEstado=cmunicipios.`cveEntidadFederativa`
+				WHERE cveEntidadFederativa=cconsignatarios.estado AND cveMunicipio=cconsignatarios.municipio
+			) AS estadoD,
+			(
+				SELECT cmunicipios.nombre AS municipio FROM `cmunicipios`
+				INNER JOIN cestados ON cveEstado=cmunicipios.`cveEntidadFederativa`
+				WHERE cveEntidadFederativa=cconsignatarios.estado AND cveMunicipio=cconsignatarios.municipio
+			) AS municipioD
+    		FROM cguias
+    		LEFT JOIN cconsignatarios ON cguias.cveConsignatario = cconsignatarios.cveConsignatario
+    		WHERE cguias.cveGuia != '' ".$condicion."
+    		ORDER BY cguias.cveCliente ASC,cguias.cveGuiaInt,cguias.fechaCreacion DESC;";
     $resSql = $bd->Execute($sql);
     
     $leyendaObs = "";
     
+    $contador = 1; // Se crea un contador para saber el numero de guias que se esta creando y asi determinar en que momento se debe agregar una nueva hoja
     foreach($resSql as $reg)
     {
         $numTel = "";
@@ -155,17 +164,40 @@ class PDF extends PDF_Table
         }
         
         //Cada 3 impresiones se va a agregar una hoja
-        $pdf->AddPage();
+        if($contador == 1)	//Si el contador esta en 1 se añade una hoja
+        {
+        	$pdf->AddPage();
+        }
+        
+        if($contador == 1)
+        {
+        	$aumento = 0;
+        }
+        elseif($contador == 2)	//Si el contador es 2 se aumenta la posision en el eje de las Y para cada elemento que asi lo reguiera posisionando la Guia #2
+        {
+        	$aumento = 92;
+        }
+        else	//Si el contador es 3 se aumenta la posision en el eje de las Y para cada elemento que asi lo reguiera posisionando la Guia #3
+        {
+        	$aumento = 184;
+        }
+
+        $contador++;	//Se incrementa el contador
+        if($contador == 4)	//Si el contador es cuatro se cambia a 1 para reptir el ciclo y poder Agregar una nueva pagina
+        {
+        	$contador = 1;
+        }
+        
         $pdf->SetAutoPageBreak(true,0);
         $pdf->SetMargins(1,1,1);
         
-        //Lï¿½nea 1 --> FOLIO
+        //Linea 1 --> FOLIO
         $pdf->SetFont('Arial','',18);
-        $pdf->SetXY(167,10);/*170,10*/
+        $pdf->SetXY(167,10+$aumento);/*170,10*/
         $pdf->SetTextColor(0,0,0);
         $pdf->Cell(43,9,$reg['cveGuiaInt'],1,0,'C',0);
                 
-        //Lï¿½nea 1 --> No. PIEZAS
+        //Linea 1 --> No. PIEZAS
         if($reg['piezas'] == 0){$piezas = "";}else{$piezas = $reg['piezas'];}
         if($reg['kg'] == 0){$kg = "";}else{$kg = $reg['kg'];}
         if($reg['volumen'] == 0){$volumen = "";}else{$volumen = $reg['volumen'];}
@@ -178,14 +210,14 @@ class PDF extends PDF_Table
         $pdf->SetFont('Arial','',18);
         $pdf->SetTextColor(0,0,0);
         $pdf->Ln(30);
-        $pdf->SetXY(7,28);/*5,29*/
+        $pdf->SetXY(7,28+$aumento);/*5,29*/
         $pdf->Cell(49,9,$reg['recepcionCYE'],1,0,'C',0);//FECHA
         $pdf->SetFont('Arial','',14);
-        $pdf->SetXY(52,28);/*48,27*/
+        $pdf->SetXY(52,28+$aumento);/*48,27*/
         $pdf->CellFitScale(80,8,$diceContener[0],0,0,'C',0);//borde,0,Negrita o no,0
-        $pdf->SetXY(52,32);/*48,31*/
+        $pdf->SetXY(52,32+$aumento);/*48,31*/
         $pdf->CellFitScale(80,8,$diceContener[1],0,0,'C',0);//borde,0,Negrita o no,0
-        $pdf->SetXY(132,28);/*130,29*/
+        $pdf->SetXY(132,28+$aumento);/*130,29*/
         $pdf->SetFont('Arial','',16);
         $pdf->Cell(26,9,$piezas,1,0,'C',0);
         $pdf->Cell(26,9,$kg,1,0,'C',0);
@@ -199,25 +231,25 @@ class PDF extends PDF_Table
         $nombre3=$nombreP2[0];
         $nombre4=$nombreP2[1];
         
-        //Lï¿½nea 2 --> NOMBRE 1 y 2
+        //Linea 2 --> NOMBRE 1 y 2
         $pdf->SetFont('Arial','',9);
         $pdf->SetTextColor(0,0,0);
         $pdf->Ln();
-        $pdf->SetXY(27,38);/*15,40*/
+        $pdf->SetXY(27,38+$aumento);/*15,40*/
         $pdf->CellFitScale(88,4,$reg['nombreRemitente'].$reg['nombreRemitente'],0,0,'L',0);
-        $pdf->SetXY(27,42);/*0,$y+5*/
+        $pdf->SetXY(27,42+$aumento);/*0,$y+5*/
         $pdf->CellFitScale(103,4,$nombre2,0,0,'L',0);
         
-        //Lï¿½nea 2 --> NOMBRE 1 y 2 Consignatario
+        //Linea 2 --> NOMBRE 1 y 2 Consignatario
         $pdf->SetFont('Arial','',9);
         $pdf->SetTextColor(0,0,0);
         $pdf->Ln();
-        $pdf->SetXY(134,38);/*130,40*/
+        $pdf->SetXY(134,38+$aumento);/*130,40*/
         $pdf->CellFitScale(82,4,$reg['nombre'],0,0,'L',0);
-        $pdf->SetXY(134,42);/*103,$z+5*/
+        $pdf->SetXY(134,42+$aumento);/*103,$z+5*/
         $pdf->CellFitScale(109,4,$nombre4,0,0,'L',0);
         
-        //Lï¿½nea 3 --> CALLE
+        //Linea 3 --> CALLE
         $pdf->SetFont('Arial','',8);
         $pdf->Ln(4.5);/*4.5*/
         $pdf->SetX(20);/*5*/
@@ -230,7 +262,7 @@ class PDF extends PDF_Table
         $pdf->SetX(120);/*113*/
         $pdf->CellFitScale(96,4,$reg['colonia'],0,0,'L',0);
             
-        //Lï¿½nea 4
+        //Linea 4
         $pdf->SetFont('Arial','',8);
         $pdf->Ln(3.5);
         $pdf->SetX(20);/*5*/
@@ -246,7 +278,7 @@ class PDF extends PDF_Table
         $pdf->CellFitScale(42,4,$reg['codigoPostal'],0,0,'L',0);
         $pdf->CellFitScale(42.5,4,$numTel,0,0,'L',0);
         
-        //Lï¿½nea 4 Observaciones
+        //Linea 4 Observaciones
         
         $reg['obsRemitente'] = strtoupper($reg['obsRemitente'].'mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmMMMMMMMMMMMMMMMMMMM');
         $regObsRemitente = partirTexto($reg['obsRemitente']);
