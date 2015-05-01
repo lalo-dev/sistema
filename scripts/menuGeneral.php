@@ -83,8 +83,8 @@ $sucursal=$_SESSION["cveSucursal"];
 							</li>
 							<li><h1>Asignaci&oacute;n e Impresi&oacute;n</h1>
 								<ul>
-									<li><a href="guiaImpresion.php">Multiples Guias</a></li>
-									<li><a href="guiaReImpresion.php">Re.impresi&oacute;n de Guia</a></li>
+									<li><a href="guiaImpresion.php">Multiples Gu&iacute;as</a></li>
+									<li><a href="guiaReImpresion.php">Re.impresi&oacute;n de Gu&iacute;a</a></li>
 								</ul>
 							</li>
 							

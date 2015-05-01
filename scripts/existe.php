@@ -12,8 +12,7 @@ $keys =  $_GET["keys"];
 $table =  $_GET["table"];
 $filAnd =  $_GET["filAnd"];
 $fV =  $_GET["fV"];
-if($_GET["filAnd"]){
-$filtroAnd = "AND ".$filAnd."="."'".$fV."'";}
+if($_GET["filAnd"]){$filtroAnd = "AND ".$filAnd."="."'".$fV."'";}
 
 switch($keys){
 

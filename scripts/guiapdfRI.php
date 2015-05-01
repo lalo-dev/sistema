@@ -61,8 +61,13 @@ class PDF extends PDF_Table
         if($cveCliente != 0)
             $condicion .= "AND cveCliente = $cveCliente ";
     }
+    if(isset($_GET["pendientes"]) && $_GET["pendientes"] == "si")
+    {
+    	$condicion = "AND estatusImpresion = 0";
+    }
     
     $sql = "SELECT
+            cguias.cveGuia,
             cguias.cveGuiaInt,
             cguias.obsRemitente,
             cguias.recepcionCYE,
@@ -169,7 +174,7 @@ class PDF extends PDF_Table
         	$pdf->AddPage();
         }
         
-        if($contador == 1)
+        if($contador == 1)	//La posiscion de la guia en el eje de las y, al ser la primera en la hoja, no se aumenta
         {
         	$aumento = 0;
         }
@@ -290,6 +295,7 @@ class PDF extends PDF_Table
         $pdf->Ln(3.25);
         $pdf->SetX(8);
         $pdf->SetFont('Arial','',8);
+        
         if($leyendaObs == "")
         {
             $pdf->CellFitScale(216,4,utf8_decode($regObsRemitente[1]),0,0,'L',0);
@@ -300,6 +306,9 @@ class PDF extends PDF_Table
             $mitexto = wordwrap('WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW',84,'\n',true);
             $pdf->CellFitScale(216,4,$mitexto,0,0,'L',0);
         }
+        
+        $sqlActualizar = "UPDATE cguias SET estatusImpresion = '1' WHERE cveGuia = '".$reg["cveGuia"]."';";
+        $resSql = $bd->ExecuteNonQuery($sqlActualizar);
     }
 /*************************************************************************************************************/
 
@@ -433,7 +442,6 @@ function encontrarEspacio($texto)
     $resultados=array($palabra,$textoFinal);
     return $resultados;
 }
-
 //Poner el nombre para descargar el archivo
 //$pdf->Output('MiNuevoPDF.pdf',D);
 $pdf->Output();

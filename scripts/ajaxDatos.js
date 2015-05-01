@@ -969,26 +969,28 @@ function checar_estado()
 function fin(res){
 	
 	alert(res);
-
-	var preg = "\u00BFDesea Imprimir la guia?";
 	
-	if(confirm(preg))
-	{
-		imprimirGuia();
-		$("form2").reset();
-		fecha=new Date();
-		dia=fecha.getDate();
-		mes=fecha.getMonth()+1;
-		anyo=fecha.getFullYear();
-		if(dia<10) dia="0"+dia;
-		if(mes<10) mes="0"+mes;
-		fecha_hoy=dia+"/"+mes+"/"+anyo;
-		$("txtRecepcioncye").value=fecha_hoy;		
-	}
-	else
-	{
+	//28.04.2015 ---> Se elemina la obsion de imprimir guia para tener el control sobre el estatus de la impresion de acuerdo al
+	//				  requerimiento "Impresion de guias no impresas"
+
+//	var preg = "\u00BFDesea Imprimir la guia?";
+//	if(confirm(preg))
+//	{
+//		imprimirGuia();
+//		$("form2").reset();
+//		fecha=new Date();
+//		dia=fecha.getDate();
+//		mes=fecha.getMonth()+1;
+//		anyo=fecha.getFullYear();
+//		if(dia<10) dia="0"+dia;
+//		if(mes<10) mes="0"+mes;
+//		fecha_hoy=dia+"/"+mes+"/"+anyo;
+//		$("txtRecepcioncye").value=fecha_hoy;		
+//	}
+//	else
+//	{
 		location = "guia.php";
-	}
+//	}
 }
 
 function finModificar(res)

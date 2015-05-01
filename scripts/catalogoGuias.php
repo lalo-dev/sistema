@@ -14,7 +14,7 @@
 	$caracteres =  $_POST["caracteres"];
 	$cliente=$_GET["cliente"];
 	$operacion=$_GET["operacion"];
-
+	
 	if ($caracteres != ""){
 		switch($operacion){
 
@@ -43,7 +43,10 @@
 				break;
 			case 5://Agregada
 				{
-					$dests = $bd->ExecuteFieldn("cguias", "cveGuia,nombreRemitente"," (cveGuia LIKE '$caracteres%%' OR nombreRemitente LIKE '$caracteres%%') LIMIT 0,5");
+					$condicion = "";
+					if(isset($_GET["pendientes"]) && $_GET["pendientes"] == "si")
+						$condicion = "AND estatusImpresion = 0";
+					$dests = $bd->ExecuteFieldn("cguias", "cveGuia,nombreRemitente"," (cveGuia LIKE '$caracteres%%' OR nombreRemitente LIKE '$caracteres%') $condicion LIMIT 0,5");
 				}
 				break;	
 			case 6:

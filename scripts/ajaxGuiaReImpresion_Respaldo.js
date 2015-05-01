@@ -1,10 +1,9 @@
 window.onload = inicia;
 
-function inicia()
-{
+function inicia() {
+		
 	$("btnModificar").disabled=true;
-	$("btnCancelar").disabled=true;
-	$("chkGuiasPendientes").onclick = imprimirPendientes;
+	$("btnCancelar").disabled=true;	
 	
 	$Ajax("scripts/Sucursales.php", {onfinish: cargaSucursal, tipoRespuesta: $tipo.JSON, avisoCargando:"loading"});
    	$Ajax("scripts/envios.php", {onfinish: cargarEnvios, tipoRespuesta: $tipo.JSON, avisoCargando:"loading"});
@@ -32,10 +31,7 @@ function inicia()
 	
 	//Inicializando autocomplete
 	$("autoGuia").className = "autocomplete";
-	var pendientes = "";
-	if($("hddSoloGuiasPendientes").value == "si")
-		pendientes = "&pendientes=si";
-	new Ajax.Autocompleter("txtGuia", "autoGuia", "scripts/catalogoGuias.php?operacion=5"+pendientes, {paramName: "caracteres",afterUpdateElement:existe});
+	new Ajax.Autocompleter("txtGuia", "autoGuia", "scripts/catalogoGuias.php?operacion=5", {paramName: "caracteres",afterUpdateElement:existe});
 	$("txtGuia").onchange=existe;
 	
 	//Primero habrá que elegir la estación para poder iniciar la búsqueda de los consignatarios
@@ -263,8 +259,7 @@ function cargaSucursal(airls){
 
 //funcion que verifica si existe una guia
 //hace una peticion que devuelve un único valor
-function existe()
-{
+function existe() {	
 	//$("status").innerHTML="";
 	if ($("txtGuia").value!="" ){
 		//Separamos la clave de la guía del Nombre del Remitente
@@ -730,12 +725,7 @@ function allgood(){
 
 function imprimir()
 {
-	var pendientes = "";
-	if($("hddSoloGuiasPendientes").value = "si")
-	{
-		pendientes = "&pendientes=si";
-	}
-	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	var impNum = "si";
 	if($("rdbImprimirNo").checked)
 	{
@@ -751,9 +741,8 @@ function imprimir()
 				$('hddCveCliente').value=0;
 			}
 			//Obtenemos los datos +"&imprimirNum="+impNum
-			//28.04.2015 ---> Se agrega la variable "pendientes" para la impresion de las guias pendientes
 			var valores="imprimirNum="+impNum+"&txtRangoInicio="+$('txtRangoInicio').value+"&txtRangoFin="+$('txtRangoFin').value+"&hddCveCliente="+$('hddCveCliente').value+
-					    "&txtFechaInicio="+$('txtFechaInicio').value+"&txtFechaFin="+$('txtFechaFin').value+pendientes;
+					    "&txtFechaInicio="+$('txtFechaInicio').value+"&txtFechaFin="+$('txtFechaFin').value;
 			
 			var win = new Window({className: "mac_os_x", title: "Guias", top:70, left:300, width:700, height:400, url: 'scripts/guiapdfRI.php?'+valores, showEffectOptions: {duration:1.5}});
         win.show();
@@ -942,12 +931,4 @@ function allGood()
 	}
 	
 	return true;
-}
-
-function imprimirPendientes()
-{
-	var guiasPendientes = "?guiasPendientes=si";
-	if($("hddSoloGuiasPendientes").value == "si")
-		guiasPendientes = "";
-	window.location="guiaReImpresion.php"+guiasPendientes;
 }

@@ -13,6 +13,14 @@
 	$sucursal=$_SESSION["cveSucursal"];
 	$cveGuia = @$_GET["cveGuia"];
 	include("scripts/bd.php");
+	
+	$checked = "";
+	$guiasPendientes = "no";
+	if(isset($_GET["guiasPendientes"]) && $_GET["guiasPendientes"] == "si")
+	{
+		$guiasPendientes = $_GET["guiasPendientes"];
+		$checked = 'checked="checked"';
+	}
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -39,7 +47,7 @@
 <body>
  <div id="contenedor">
 	<?php
-	if($menu!="")	
+	if($menu!="")
 		require_once($menu);
     ?>
     <br />
@@ -48,7 +56,14 @@
     	<form id="form2">
         	<fieldset style="width:800px;">
            	  <legend>Filtro</legend>
-                <table width="723" border="0">
+                <table width="723" border="1">
+                    <tr>
+                    	<td colspan="5">
+                    		<input type="checkbox" id="chkGuiasPendientes" name="chkGuiasPendientes" <?php echo$checked;?> />
+                    		Mostrar solo Gu&iacute;as pendientes por Imprmir
+                    		<input type="hidden" id="hddSoloGuiasPendientes" name="hddSoloGuiasPendientes" value="<?php echo $guiasPendientes;?>">
+                    	</td>
+                    </tr>
                     <tr>
                         <td width="107">
                         	<input type="radio" id="rdbGuia" name="rdbFiltro" checked="checked" onclick="chkFiltro(this,0);"/>

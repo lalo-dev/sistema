@@ -73,7 +73,7 @@
 	if(strlen($txtFechaEntrega) == 10 && $txtFechaEntrega != "") {$slcStatus = "Entregada";}
 	if(strlen($txtFechaA) == 10 && $txtFechaA != "" ){$slcStatus = "Concluida";}
 	
-	$conexion = mysql_connect("localhost","webcom","webcom") or die (mysql_error());
+	$conexion = mysql_connect("localhost","root","") or die (mysql_error());	//Se cambia el nomvre de usuario y contraseña "webcom" y "webcom" por el de "root" y "" para que funcione en mi maquina ---> por Said
 	$db = mysql_select_db("cargayex",$conexion) or die (mysql_error());
 	//mysql_query("SET NAMES 'utf8'");
 
@@ -149,8 +149,11 @@
 	
 	$txaObservaciones=utf8_encode($txaObservaciones); //SI no se cambia el formato marca error en la ActualizaciÃ³n
 	
-	$sql1 = "INSERT INTO cguias (cveEmpresa ,cveSucursal ,cveGuia, cveGuiaInt ,cveCliente,guiaArea ,cveLineaArea ,noVuelo ,fechaVuelo ,recepcionCYE ,nombreRemitente ,calleRemitente ,coloniaRemitente ,municipioRemitente ,estadoRemitente ,codigoPostalRemitente ,telefonoRemitente ,rfcRemitente ,piezas ,kg ,volumen ,validezDias ,status ,recibio ,llegadaacuse ,observaciones ,indicadorRespaldos ,sello ,firma ,fechaEntrega ,recoleccion ,tipoEnvio ,valorDeclarado,cveDireccion,reexpedicion,usuarioCreador,fechaCreacion,estatus,cveConsignatario,contCarga,obsRemitente)
-	VALUES (".$empresa.", '$cveGuia', $cveGuiaInt, '$cliente', '$txtGuiaAerea', '$slcLineaA', '$txtNumeroVuelo', '$txtFechaVuelo', '$txtRecepcioncye', '$txtRemitente', '$txtCalleR', '$txtColR', '$txtMunR', '$txtNombredo', '$txtCodigoPr', '$txtTelefonoR', '$txtRfcR', '$txtPiezas', '$txtKg', '$txtVol', '$txtVigencia', '$slcStatus', '$txtRecibio', '$txtFechaA', '$txaObservaciones', '$chkRespaldo', '$chkSello', '$chkFirma', '$txtFechaEntrega', '$slcRecoleccion', '$slcTipoe', '$txtValord','$cveDireccion','$reexpedicion','$usuario',NOW(),'1','$cveConsignatario','$txtDContener','$observacionesC')";
+	/*$sql1 = "INSERT INTO cguias (cveEmpresa ,cveSucursal ,cveGuia, cveGuiaInt ,cveCliente,guiaArea ,cveLineaArea ,noVuelo ,fechaVuelo ,recepcionCYE ,nombreRemitente ,calleRemitente ,coloniaRemitente ,municipioRemitente ,estadoRemitente ,codigoPostalRemitente ,telefonoRemitente ,rfcRemitente ,piezas ,kg ,volumen ,validezDias ,status ,recibio ,llegadaacuse ,observaciones ,indicadorRespaldos ,sello ,firma ,fechaEntrega ,recoleccion ,tipoEnvio ,valorDeclarado,cveDireccion,reexpedicion,usuarioCreador,fechaCreacion,estatus,cveConsignatario,contCarga,obsRemitente)
+	VALUES (".$empresa.", '$cveGuia', $cveGuiaInt, '$cliente', '$txtGuiaAerea', '$slcLineaA', '$txtNumeroVuelo', '$txtFechaVuelo', '$txtRecepcioncye', '$txtRemitente', '$txtCalleR', '$txtColR', '$txtMunR', '$txtNombredo', '$txtCodigoPr', '$txtTelefonoR', '$txtRfcR', '$txtPiezas', '$txtKg', '$txtVol', '$txtVigencia', '$slcStatus', '$txtRecibio', '$txtFechaA', '$txaObservaciones', '$chkRespaldo', '$chkSello', '$chkFirma', '$txtFechaEntrega', '$slcRecoleccion', '$slcTipoe', '$txtValord','$cveDireccion','$reexpedicion','$usuario',NOW(),'1','$cveConsignatario','$txtDContener','$observacionesC')";*/
+	//28.04.2015 ---> Se agrega el campo de "estatusImpresion" para el requerimiento "Impresion de guias no impresas"
+	$sql1 = "INSERT INTO cguias (cveEmpresa ,cveSucursal ,cveGuia, cveGuiaInt ,cveCliente,guiaArea ,cveLineaArea ,noVuelo ,fechaVuelo ,recepcionCYE ,nombreRemitente ,calleRemitente ,coloniaRemitente ,municipioRemitente ,estadoRemitente ,codigoPostalRemitente ,telefonoRemitente ,rfcRemitente ,piezas ,kg ,volumen ,validezDias ,status ,recibio ,llegadaacuse ,observaciones ,indicadorRespaldos ,sello ,firma ,fechaEntrega ,recoleccion ,tipoEnvio ,valorDeclarado,cveDireccion,reexpedicion,usuarioCreador,fechaCreacion,estatus,cveConsignatario,contCarga,obsRemitente,estatusGuia)
+	VALUES (".$empresa.", '$cveGuia', $cveGuiaInt, '$cliente', '$txtGuiaAerea', '$slcLineaA', '$txtNumeroVuelo', '$txtFechaVuelo', '$txtRecepcioncye', '$txtRemitente', '$txtCalleR', '$txtColR', '$txtMunR', '$txtNombredo', '$txtCodigoPr', '$txtTelefonoR', '$txtRfcR', '$txtPiezas', '$txtKg', '$txtVol', '$txtVigencia', '$slcStatus', '$txtRecibio', '$txtFechaA', '$txaObservaciones', '$chkRespaldo', '$chkSello', '$chkFirma', '$txtFechaEntrega', '$slcRecoleccion', '$slcTipoe', '$txtValord','$cveDireccion','$reexpedicion','$usuario',NOW(),'1','$cveConsignatario','$txtDContener','$observacionesC','0')";
 	caracteres($sql1);
 	$sql1=utf8_decode($sql1);	
 	$res1 = mysql_query($sql1,$conexion);
