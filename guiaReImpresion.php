@@ -56,7 +56,7 @@
     	<form id="form2">
         	<fieldset style="width:800px;">
            	  <legend>Filtro</legend>
-                <table width="723" border="1">
+                <table width="723" border="0">
                     <tr>
                     	<td colspan="5">
                     		<input type="checkbox" id="chkGuiasPendientes" name="chkGuiasPendientes" <?php echo$checked;?> />
